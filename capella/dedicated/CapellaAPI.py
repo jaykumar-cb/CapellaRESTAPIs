@@ -1839,3 +1839,9 @@ class CapellaAPI(CommonCapellaAPI):
         url = "{}?page=1&perPage=25&sortBy=serviceTime&sortDirection=desc&lessThan=false".format(url)
         resp = self.do_internal_request(url, method="GET")
         return resp
+
+    def get_query_workload_filters(self, tenant_id, project_id, cluster_id):
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/query-workload-filters".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
