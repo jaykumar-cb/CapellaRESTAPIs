@@ -236,8 +236,8 @@ class CapellaAPI(CommonCapellaAPI):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
             .format(self.internal_url, tenant_id, project_id, cluster_id)
         body = {"name": user, "password": pwd,
-                "permissions": {"data_reader": {}, "data_writer": {},
-                                "credentialType": credential_type}}
+                "permissions": {"data_reader": {}, "data_writer": {}},
+                "credentialType": credential_type}
         url = '{}/users'.format(url)
         resp = self.do_internal_request(url, method="POST",
                                     params=json.dumps(body))
