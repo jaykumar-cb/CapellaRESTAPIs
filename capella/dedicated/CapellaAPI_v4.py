@@ -79,6 +79,185 @@ class ClusterOperationsAPIs(APIRequests):
         self.free_tier_bucket_endpoint = self.cluster_endpoint + "/{}/buckets/freeTier"
         self.free_tier_app_svc_endpoint = self.cluster_endpoint + "/{}/appservices/freeTier"
 
+        self.user_endpoint = organization_endpoint + "/{}/users"
+    
+    def create_user(
+            self,
+            organizationId,
+            resources,
+            email,
+            name,
+            organizationRole,
+            headers=None,
+            **kwargs):
+        """
+        Invites a new user under the organization.
+
+        Args:
+            organizationId: The ID of the tenant in which the user is created. (UUID)
+            resources: The resources the user has access to. (list)
+            email: The email of the user to be created. (string)
+            name: The name of the user to be created. (string)
+            organizationRole: The role of the user in the organization. (string)
+            headers: Headers to be sent with the API call. (dict)
+            **kwargs: Do not use this under normal circumstances. This is only to test negative scenarios. (dict)
+
+        Returns:
+            Success : Status Code and response (JSON).
+            Error : message, hint, code, HttpStatusCode.
+        """
+        self.cluster_ops_API_log.info(
+            "Creating user: {}, inside organization: {}".format(email, organizationId))
+        params = {
+            "resources": resources,
+            "email": email,
+            "name": name,
+            "organizationRole": organizationRole
+        }
+        for k, v in kwargs.items():
+            params[k] = v
+
+        resp = self.api_post(self.user_endpoint.format(organizationId),
+                             params, headers)
+        return resp
+
+    def fetch_user_info(
+            self,
+            organizationId,
+            userId,
+            headers=None,
+            **kwargs):
+        """
+        Fetches the details of a user.
+
+        Args:
+            organizationId: The ID of the tenant in which the user is present. (UUID)
+            userId: The ID of the user to fetch the details of. (UUID)
+            headers: Headers to be sent with the API call. (dict)
+            **kwargs: Do not use this under normal circumstances. This is only to test negative scenarios. (dict)
+        
+        Returns:
+            Success : Status Code and response (JSON).
+            Error : message, hint, code, HttpStatusCode.
+        """
+        self.cluster_ops_API_log.info(
+            "Fetching details for user: {}, inside organization: {}".format(userId, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+
+        resp = self.api_get("{}/{}".format(self.user_endpoint.format(organizationId), userId), params, headers)
+        return resp
+    
+    def update_user(
+            self,
+            organizationId,
+            userId,
+            body,
+            headers=None,
+            **kwargs):
+        """
+        Updates organizationRole and resources of the user.
+
+        Args:
+            organizationId: The ID of the tenant in which the user is present. (UUID)
+            userId: The ID of the user to update the details of. (UUID)
+            body: The body having new roles for the user. (dict)
+            headers: Headers to be sent with the API call. (dict)
+            **kwargs: Do not use this under normal circumstances. This is only to test negative scenarios. (dict)
+        
+        Returns:
+            Success : Status Code and response (JSON).
+            Error : message, hint, code, HttpStatusCode.
+        """
+        self.cluster_ops_API_log.info(
+            "Updating user: {}, inside organization: {}".format(userId, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+
+        resp = self.api_put("{}/{}".format(self.user_endpoint.format(organizationId), userId), body, headers)
+        return resp
+
+    def delete_user(
+            self,
+            organizationId,
+            userId,
+            headers=None,
+            **kwargs):
+        """
+        Removes user from the organization.
+
+        Args:
+            organizationId: The ID of the tenant in which the user is present. (UUID)
+            userId: The ID of the user to delete. (UUID)
+            headers: Headers to be sent with the API call. (dict)
+            **kwargs: Do not use this under normal circumstances. This is only to test negative scenarios. (dict)
+        
+        Returns:
+            Success : Status Code and response (JSON).
+            Error : message, hint, code, HttpStatusCode.
+        """
+        self.cluster_ops_API_log.info(
+            "Deleting user: {}, inside organization: {}".format(userId, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+
+        resp = self.api_del("{}/{}".format(self.user_endpoint.format(organizationId), userId), params, headers)
+        return resp
+    
+    def list_users(
+            self,
+            organizationId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            projectId=None,
+            headers=None,
+            **kwargs):
+        """
+        Lists all the users in the organization and filter on the basis of projectId.
+
+        Args:
+            organizationId: The ID of the tenant in which the users are present. (UUID)
+            page: The page number to fetch the users from. (int)[optional]
+            perPage: The number of users to fetch per page. (int)[optional]
+            sortBy: The field to sort the users by. (string)[optional]
+            sortDirection: The direction to sort the users by. (string)[optional]
+            projectId: The ID of the project to filter the users by. (UUID)[optional]
+            headers: Headers to be sent with the API call. (dict)
+            **kwargs: Do not use this under normal circumstances. This is only to test negative scenarios. (dict)
+        
+        Returns:
+            Success : Status Code and response (JSON).
+            Error : message, hint, code, HttpStatusCode.
+        """
+        self.cluster_ops_API_log.info(
+            "Listing users inside organization: {}".format(organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+
+        if page:
+            params["page"] = page
+        if perPage:
+            params["perPage"] = perPage
+        if sortBy:
+            params["sortBy"] = sortBy
+        if sortDirection:
+            params["sortDirection"] = sortDirection
+        if projectId:
+            params["projectId"] = projectId
+
+        resp = self.api_get(self.user_endpoint.format(organizationId), params, headers)
+        return resp
+    
     def fetch_free_tier_cluster_info(
             self,
             organizationId,
