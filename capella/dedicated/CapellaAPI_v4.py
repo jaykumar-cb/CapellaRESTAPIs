@@ -87,7 +87,7 @@ class ClusterOperationsAPIs(APIRequests):
             resources,
             email,
             name,
-            organizationRole,
+            organizationRoles,
             headers=None,
             **kwargs):
         """
@@ -112,7 +112,7 @@ class ClusterOperationsAPIs(APIRequests):
             "resources": resources,
             "email": email,
             "name": name,
-            "organizationRole": organizationRole
+            "organizationRoles": organizationRoles
         }
         for k, v in kwargs.items():
             params[k] = v
