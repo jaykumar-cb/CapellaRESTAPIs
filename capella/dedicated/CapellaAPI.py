@@ -164,6 +164,13 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 
+    def get_bucket(self, tenant_id, project_id, cluster_id, bucket_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        url = '{}/buckets/{}'.format(url, bucket_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
     def flush_bucket(self, tenant_id, project_id, cluster_id, bucket_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
             .format(self.internal_url, tenant_id, project_id, cluster_id)
