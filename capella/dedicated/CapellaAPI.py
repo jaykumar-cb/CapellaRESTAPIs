@@ -1867,3 +1867,258 @@ class CapellaAPI(CommonCapellaAPI):
         url = "{}/internal/support/clusters/{}/fusion/status".format(self.internal_url, cluster_id)
         resp = self._urllib_request(url, method="GET", headers=self.cbc_api_request_headers)
         return resp
+
+    def get_mtls_configuration(self, tenant_id, project_id, cluster_id):
+        """
+        Get the mTLS configuration for the cluster.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+
+        Returns:
+            200: Successfully retrieved mTLS configuration for the cluster.
+            Example:
+            {
+                "state": "enable",
+                "prefixes": [
+                    {
+                    "path": "subject.cn",
+                    "prefix": "www.",
+                    "delimiter": "."
+                    }
+                ]
+            }
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/config".format(
+            self.internal_url, tenant_id, project_id, cluster_id
+        )
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def update_mtls_configuration(self, tenant_id, project_id, cluster_id, mTLS_config):
+        """
+        Update the mTLS configuration on the cluster.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+            mTLS_config: The mTLS configuration data to update
+                Example:
+                {
+                    "state": "enable",
+                    "prefixes": [
+                        {
+                        "path": "subject.cn",
+                        "prefix": "www.",
+                        "delimiter": "."
+                        }
+                    ]
+                }
+
+        Returns:
+            204: Successfully updated the mTLS configuration for the cluster
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/config".format(
+            self.internal_url, tenant_id, project_id, cluster_id
+        )
+        resp = self.do_internal_request(url, method="PUT", params=json.dumps(mTLS_config))
+        return resp
+
+    def add_mtls_certificate(self, tenant_id, project_id, cluster_id, certificate_data):
+        """
+        Add a new mTLS certificate to the cluster.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+            certificate_data: The certificate data to add
+                Example:
+                {
+                    "name": "MyCertificate",
+                    "certificate": "***",
+                    "intermediates": "***"
+                }
+
+        Returns:
+            201: Successfully added a new certificate to the cluster
+            Example:
+            {
+                "id": "ffffffff-aaaa-1414-eeee-000000000000"
+            }
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/certificates".format(
+            self.internal_url, tenant_id, project_id, cluster_id
+        )
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(certificate_data))
+        return resp
+
+    def list_mtls_certificates(self, tenant_id, project_id, cluster_id, page=None, per_page=None,
+                              sort_by=None, sort_direction=None):
+        """
+        List the current mTLS certificates on the cluster.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+            page: Page number for pagination
+            per_page: Number of results per page
+            sort_by: Field to sort by
+            sort_direction: Sort direction (asc/desc)
+
+        Returns:
+            200: Successfully listed mTLS certificates
+            Example:
+            {
+                "data": [
+                    {
+                    "id": "ffffffff-aaaa-1414-eeee-000000000000",
+                    "status": "pending",
+                    "certificateData": {
+                        "name": "my-cert",
+                        "certificate": "***",
+                        "intermediates": "***"
+                    },
+                    "intendedState": {
+                        "name": "my-cert",
+                        "certificate": "***",
+                        "intermediates": "***"
+                    },
+                    "audit": {
+                        "createdBy": "ffffffff-aaaa-1414-eeee-000000000000",
+                        "createdAt": "2021-09-01T12:34:56Z",
+                        "modifiedBy": "ffffffff-aaaa-1414-eeee-000000000000",
+                        "modifiedAt": "2021-09-01T12:34:56Z",
+                        "version": 1
+                    }
+                    }
+                ],
+                "cursor": {
+                    "pages": {
+                        "page": 2,
+                        "next": 3,
+                        "previous": 1,
+                        "last": 10,
+                        "perPage": 10,
+                        "totalItems": 10
+                    },
+                    "hrefs": {
+                        "first": "https://cloud.couchbase.com/v4/users?page=1&perPage=10",
+                        "last": "https://cloud.couchbase.com/v4/users?page=1&perPage=10",
+                        "previous": "https://cloud.couchbase.com/v4/users?page=1&perPage=10",
+                        "next": "https://cloud.couchbase.com/v4/users?page=1&perPage=10"
+                    }
+                }
+            }
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/certificates".format(
+            self.internal_url, tenant_id, project_id, cluster_id
+        )
+
+        # Build query parameters
+        params = {}
+        if page is not None:
+            params['page'] = page
+        if per_page is not None:
+            params['perPage'] = per_page
+        if sort_by is not None:
+            params['sortBy'] = sort_by
+        if sort_direction is not None:
+            params['sortDirection'] = sort_direction
+
+        if params:
+            query_string = '&'.join([f"{k}={v}" for k, v in params.items()])
+            url = f"{url}?{query_string}"
+
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def get_mtls_certificate(self, tenant_id, project_id, cluster_id, cert_id):
+        """
+        Get a specific mTLS certificate by ID.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+            cert_id: ID of the certificate to retrieve
+
+        Returns:
+            200: Successfully returned a self-signed certificate
+            Example:
+            {
+                "id": "ffffffff-aaaa-1414-eeee-000000000000",
+                "status": "pending",
+                "certificateData": {
+                    "name": "my-cert",
+                    "certificate": "***",
+                    "intermediates": "***"
+                },
+                "intendedState": {
+                    "name": "my-cert",
+                    "certificate": "***",
+                    "intermediates": "***"
+                },
+                "audit": {
+                    "createdBy": "ffffffff-aaaa-1414-eeee-000000000000",
+                    "createdAt": "2021-09-01T12:34:56Z",
+                    "modifiedBy": "ffffffff-aaaa-1414-eeee-000000000000",
+                    "modifiedAt": "2021-09-01T12:34:56Z",
+                    "version": 1
+                }
+            }
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/certificates/{}".format(
+            self.internal_url, tenant_id, project_id, cluster_id, cert_id
+        )
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def update_mtls_certificate(self, tenant_id, project_id, cluster_id, cert_id, certificate_data):
+        """
+        Update an existing mTLS certificate.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+            cert_id: ID of the certificate to update
+            certificate_data: The updated certificate data
+                Example:
+                {
+                    "name": "my-cert",
+                    "certificate": "***",
+                    "intermediates": "***"
+                }
+
+        Returns:
+            202: Successfully submitted request to update the certificate
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/certificates/{}".format(
+            self.internal_url, tenant_id, project_id, cluster_id, cert_id
+        )
+        resp = self.do_internal_request(url, method="PUT", params=json.dumps(certificate_data))
+        return resp
+
+    def delete_mtls_certificate(self, tenant_id, project_id, cluster_id, cert_id):
+        """
+        Delete an mTLS certificate from the cluster.
+
+        Args:
+            tenant_id: ID of the organization
+            project_id: ID of the project
+            cluster_id: ID of the cluster
+            cert_id: ID of the certificate to delete
+
+        Returns:
+            202: Successfully submitted request to delete the certificate
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/mtls/certificates/{}".format(
+            self.internal_url, tenant_id, project_id, cluster_id, cert_id
+        )
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
