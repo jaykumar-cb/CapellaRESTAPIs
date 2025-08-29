@@ -2031,8 +2031,8 @@ class CapellaAPI(CommonCapellaAPI):
             params['sortDirection'] = sort_direction
 
         if params:
-            query_string = '&'.join([f"{k}={v}" for k, v in params.items()])
-            url = f"{url}?{query_string}"
+            query_string = '&'.join(["{k}={v}".format(k=k, v=v) for k, v in params.items()])
+            url = "{url}?{query_string}".format(url=url, query_string=query_string)
 
         resp = self.do_internal_request(url, method="GET")
         return resp
